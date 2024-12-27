@@ -75,3 +75,8 @@ This project is a React-based application for generating and previewing Word doc
 ### `useEffect`
 
 - Loads the Base64-encoded image on component mount, ensuring that the image is ready when the document is created.
+
+
+## Demo
+
+![Word Document Generator](./demo.png)

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Document,
   Packer,
@@ -81,6 +81,7 @@ function App() {
                             new Paragraph({
                               children: [
                                 new ImageRun({
+                                  // @ts-ignore
                                   data: base64Image, // Pass the Base64 string
                                   transformation: {
                                     width: 30, // Specify the width in points
