@@ -38,12 +38,12 @@ This project is a React-based application for generating and previewing Word doc
 
 2.	Install dependencies and Start the development server
 
-  ```bash
-  npm install
-  npm run dev
-  ```
+    ```bash
+    npm install
+    npm run dev
+    ```
 
-4.	Open your browser and navigate to the development server URL (e.g., http://localhost:3000).
+3.	Open your browser and navigate to the development server URL (e.g., http://localhost:3000).
 
 
 ## Usage
