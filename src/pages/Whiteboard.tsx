@@ -1,7 +1,12 @@
+import { Excalidraw } from "@excalidraw/excalidraw";
+
 const Whiteboard = () => {
   return (
-    <div style={{ padding: "20px" }}>
+    <div>
       <h1>Whiteboard</h1>
+      <div style={{ height: "500px" }}>
+        <Excalidraw />
+      </div>
     </div>
   );
 };

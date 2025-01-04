@@ -22,6 +22,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@excalidraw/excalidraw": "^0.17.6",
     "docx": "^9.1.0",
     "docx-preview": "^0.3.3",
     "react": "^18.3.1",
