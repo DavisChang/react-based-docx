@@ -33,10 +33,12 @@ const WindowsClient = () => {
   return (
     <div style={{ padding: "20px" }}>
       <h1>WindowsClient</h1>
-      <h2>adapter: {adapter && adapter?.constructor?.name}</h2>
+      <h2>Adapter: {adapter && adapter?.constructor?.name}</h2>
       <button onClick={sendMessage} disabled={isLoading}>
         {isLoading ? "Sending..." : "Send Message"}
       </button>
+
+      <h4>Receive messages:</h4>
       <ul>
         {messages.map((msg, index) => (
           <li key={index}>{msg}</li>

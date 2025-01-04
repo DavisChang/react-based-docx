@@ -1,6 +1,9 @@
 import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
-import Home from "./pages/home";
-import WindowsClient from "./pages/windowsClient";
+import React, { Suspense } from "react";
+
+const Home = React.lazy(() => import("./pages/home"));
+const WindowsClient = React.lazy(() => import("./pages/windowsClient"));
+const Whiteboard = React.lazy(() => import("./pages/Whiteboard"));
 
 const App = () => (
   <Router>
@@ -13,14 +16,17 @@ const App = () => (
           <Link to="/windows">Windows Client Two-Way Communication</Link>
         </li>
         <li>
-          <Link to="/electron">Electron Two-Way Communication</Link>
+          <Link to="/whiteboard">Custom Excalidraw</Link>
         </li>
       </ul>
     </nav>
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/windows" element={<WindowsClient />} />
-    </Routes>
+    <Suspense fallback={<div>Loading...</div>}>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/windows" element={<WindowsClient />} />
+        <Route path="/whiteboard" element={<Whiteboard />} />
+      </Routes>
+    </Suspense>
   </Router>
 );
 

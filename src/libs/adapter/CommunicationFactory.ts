@@ -2,6 +2,7 @@ import { CommunicationAdapter } from "./CommunicationAdapter";
 import { WebView2Adapter } from "./WebView2Adapter";
 import { ElectronAdapter } from "./ElectronAdapter";
 import { IframeAdapter } from "./IframeAdapter";
+import { NormalWebsiteAdapter } from "./NormalWebsiteAdapter";
 
 export class CommunicationFactory {
   private static instance: CommunicationAdapter | null = null;
@@ -18,11 +19,12 @@ export class CommunicationFactory {
     } else if (window.process?.type === "renderer") {
       console.log("ElectronAdapter");
       this.instance = new ElectronAdapter();
-    } else if (window.parent || window.opener) {
-      console.log("IframeAdapter");
+    } else if (window.parent !== window || window.opener) {
+      console.log("IframeAdapter detected");
       this.instance = new IframeAdapter();
     } else {
-      throw new Error("No suitable communication adapter found.");
+      console.log("NormalWebsiteAdapter detected");
+      this.instance = new NormalWebsiteAdapter();
     }
 
     return this.instance;
