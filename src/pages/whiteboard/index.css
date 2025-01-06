@@ -1,0 +1,4 @@
+.custom-styles .excalidraw .App-menu.App-menu_top > *:first-child > *,
+.custom-styles .excalidraw .App-menu.App-menu_top > *:last-child > * {
+  display: none;
+}

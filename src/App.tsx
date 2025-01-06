@@ -3,7 +3,7 @@ import React, { Suspense } from "react";
 
 const Home = React.lazy(() => import("./pages/home"));
 const WindowsClient = React.lazy(() => import("./pages/windowsClient"));
-const Whiteboard = React.lazy(() => import("./pages/Whiteboard"));
+const Whiteboard = React.lazy(() => import("./pages/whiteboard/index"));
 
 const App = () => (
   <Router>

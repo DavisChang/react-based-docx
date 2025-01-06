@@ -1,6 +1,8 @@
-import { Excalidraw, WelcomeScreen } from "@excalidraw/excalidraw";
+import { Excalidraw, WelcomeScreen, MainMenu } from "@excalidraw/excalidraw";
 import { useState } from "react";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types.d.ts";
+import "./index.css";
+
 const Whiteboard = () => {
   const [excalidrawAPI, setExcalidrawAPI] =
     useState<ExcalidrawImperativeAPI | null>(null);
@@ -29,8 +31,20 @@ const Whiteboard = () => {
       >
         Fit to viewport, first element
       </button>
+
+      <button
+        type="button"
+        onClick={() => {
+          if (!excalidrawAPI) {
+            return;
+          }
+          excalidrawAPI.resetScene();
+        }}
+      >
+        resetScene
+      </button>
       <hr />
-      <div style={{ height: "500px" }}>
+      <div style={{ height: "500px" }} className="custom-styles">
         <Excalidraw
           UIOptions={UIOptions}
           excalidrawAPI={(api: ExcalidrawImperativeAPI) =>
@@ -38,6 +52,14 @@ const Whiteboard = () => {
           }
         >
           <WelcomeScreen />
+          <MainMenu>
+            <MainMenu.ItemLink href="https://google.com">
+              Google
+            </MainMenu.ItemLink>
+            <MainMenu.ItemLink href="https://excalidraw.com">
+              Excalidraw
+            </MainMenu.ItemLink>
+          </MainMenu>
         </Excalidraw>
       </div>
     </div>
