@@ -20,15 +20,33 @@ const App = () => (
         </li>
       </ul>
     </nav>
-    <div style={{ padding: "20px" }}>
-      <Suspense fallback={<div style={{ margin: "20px 0" }}>Loading...</div>}>
+    <>
+      <Suspense
+        fallback={
+          <div style={{ margin: "20px 0", padding: "20px" }}>Loading...</div>
+        }
+      >
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/windows" element={<WindowsClient />} />
+          <Route
+            path="/"
+            element={
+              <div style={{ padding: "20px" }}>
+                <Home />
+              </div>
+            }
+          />
+          <Route
+            path="/windows"
+            element={
+              <div style={{ padding: "20px" }}>
+                <WindowsClient />
+              </div>
+            }
+          />
           <Route path="/whiteboard" element={<Whiteboard />} />
         </Routes>
       </Suspense>
-    </div>
+    </>
   </Router>
 );
 
