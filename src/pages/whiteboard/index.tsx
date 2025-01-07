@@ -5,6 +5,7 @@ import {
   restoreElements,
   convertToExcalidrawElements,
   MIME_TYPES,
+  exportToBlob,
 } from "@excalidraw/excalidraw";
 import { useRef, useState } from "react";
 import type {
@@ -129,6 +130,38 @@ const Whiteboard = () => {
     }
     excalidrawAPI.resetScene();
   };
+
+  const downloadImage = async () => {
+    if (!excalidrawAPI) return;
+
+    try {
+      // Retrieve elements and files from Excalidraw
+      const elements = excalidrawAPI.getSceneElements(); // Get canvas elements
+      const files = excalidrawAPI.getFiles(); // Get associated files
+
+      // Export the scene to a PNG Blob
+      const blob = await exportToBlob({
+        elements,
+        mimeType: "image/png", // Export as PNG
+        appState: {
+          viewBackgroundColor: "#ffffff", // Set background color for the PNG
+          exportBackground: true, // Include the background in the export
+        },
+        files,
+      });
+
+      // Trigger file download
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "drawing.png"; // File name
+      link.click();
+
+      // Clean up the object URL
+      URL.revokeObjectURL(link.href);
+    } catch (error) {
+      console.error("Error exporting PNG:", error);
+    }
+  };
   return (
     <div>
       <div style={{ padding: "20px" }}>
@@ -139,9 +172,11 @@ const Whiteboard = () => {
         <button type="button" onClick={fitToViewport}>
           Fit to viewport, first element
         </button>
-
         <button type="button" onClick={resetScene}>
           resetScene
+        </button>
+        <button type="button" onClick={downloadImage}>
+          Export as PNG
         </button>
       </div>
 
