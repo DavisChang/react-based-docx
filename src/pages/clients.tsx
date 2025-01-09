@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { CommunicationFactory } from "../libs/adapter/CommunicationFactory";
 
-const WindowsClient = () => {
+const Clients = () => {
   const [messages, setMessages] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false); // State for
   const adapter = CommunicationFactory.createAdapter();
@@ -32,7 +32,7 @@ const WindowsClient = () => {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1>WindowsClient</h1>
+      <h1>Clients</h1>
       <h2>Adapter: {adapter && adapter?.constructor?.name}</h2>
       <button onClick={sendMessage} disabled={isLoading}>
         {isLoading ? "Sending..." : "Send Message"}
@@ -48,4 +48,4 @@ const WindowsClient = () => {
   );
 };
 
-export default WindowsClient;
+export default Clients;

@@ -12,6 +12,11 @@ interface Window {
       postMessage: (message: any) => void;
     };
   };
+  dsBridge?: {
+    call: (method: string, args?: string) => any;
+    register: (method: string, handler: (data: string) => void) => void;
+    unregister: (method: string) => void;
+  };
 }
 
 declare namespace NodeJS {

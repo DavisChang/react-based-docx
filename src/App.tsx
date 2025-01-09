@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 import React, { Suspense } from "react";
 
 const Home = React.lazy(() => import("./pages/home"));
-const WindowsClient = React.lazy(() => import("./pages/windowsClient"));
+const Clients = React.lazy(() => import("./pages/clients"));
 const Whiteboard = React.lazy(() => import("./pages/whiteboard/index"));
 
 const App = () => (
@@ -13,7 +13,7 @@ const App = () => (
           <Link to="/">Word Document Generator</Link>
         </li>
         <li>
-          <Link to="/windows">Windows Client Two-Way Communication</Link>
+          <Link to="/clients">Clients Two-Way Communication</Link>
         </li>
         <li>
           <Link to="/whiteboard">Custom Excalidraw</Link>
@@ -36,10 +36,10 @@ const App = () => (
             }
           />
           <Route
-            path="/windows"
+            path="/clients"
             element={
               <div style={{ padding: "20px" }}>
-                <WindowsClient />
+                <Clients />
               </div>
             }
           />

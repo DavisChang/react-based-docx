@@ -3,6 +3,7 @@ import { WebView2Adapter } from "./WebView2Adapter";
 import { ElectronAdapter } from "./ElectronAdapter";
 import { IframeAdapter } from "./IframeAdapter";
 import { NormalWebsiteAdapter } from "./NormalWebsiteAdapter";
+import { DSBridgeAdapter } from "./DSBridgeAdapter";
 
 export class CommunicationFactory {
   private static instance: CommunicationAdapter | null = null;
@@ -16,6 +17,9 @@ export class CommunicationFactory {
     if (window.asyncBridge) {
       console.log("WebView2Adapter");
       this.instance = new WebView2Adapter();
+    } else if (window.dsBridge) {
+      console.log("DSBridgeAdapter detected");
+      this.instance = new DSBridgeAdapter();
     } else if (window.process?.type === "renderer") {
       console.log("ElectronAdapter");
       this.instance = new ElectronAdapter();
