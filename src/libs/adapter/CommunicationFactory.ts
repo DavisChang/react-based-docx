@@ -20,7 +20,7 @@ export class CommunicationFactory {
     } else if (window.dsBridge) {
       console.log("DSBridgeAdapter detected");
       this.instance = new DSBridgeAdapter();
-    } else if (window.process?.type === "renderer") {
+    } else if (window.electron) {
       console.log("ElectronAdapter");
       this.instance = new ElectronAdapter();
     } else if (window.parent !== window || window.opener) {

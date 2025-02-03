@@ -1,4 +1,7 @@
+import type { ElectronAPI } from "@electron-toolkit/preload";
+
 interface Window {
+  electron: ElectronAPI;
   asyncBridge: {
     [key: string]: (...args: any[]) => any;
   };
