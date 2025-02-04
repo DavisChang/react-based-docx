@@ -1,7 +1,6 @@
 import type { ElectronAPI } from "@electron-toolkit/preload";
 
 interface Window {
-  electron: ElectronAPI;
   asyncBridge: {
     [key: string]: (...args: any[]) => any;
   };
@@ -25,5 +24,11 @@ interface Window {
 declare namespace NodeJS {
   interface Process {
     type?: "browser" | "renderer" | "worker";
+  }
+}
+
+declare global {
+  interface Window {
+    electron: ElectronAPI
   }
 }
