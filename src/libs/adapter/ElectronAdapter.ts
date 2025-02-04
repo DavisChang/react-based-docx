@@ -14,14 +14,8 @@ export class ElectronAdapter implements CommunicationAdapter {
     // No-op implementation
     // You can optionally log or do nothing
 
-    const listener = (_event, message, data) => {
+    return window.electron.ipcRenderer.on("message", (_event, message, data) => {
       callback(message, data);
-    };
-
-    window.electron.ipcRenderer.on("message", listener);
-
-    return () => {
-      window.electron.ipcRenderer.removeListener("message", listener);
-    };
+    });
   }
 }
