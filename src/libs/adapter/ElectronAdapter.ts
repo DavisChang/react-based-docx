@@ -10,12 +10,18 @@ export class ElectronAdapter implements CommunicationAdapter {
     // return Promise.resolve(null as unknown as R);
   }
   // @ts-ignore
-  onMessage(callback: (message: string, data?: any) => void): void {
+  onMessage(callback: (message: string, data?: any) => void): () => void {
     // No-op implementation
     // You can optionally log or do nothing
 
-    window.electron.ipcRenderer.on("message", (_event, message, data) => {
+    const listener = (_event, message, data) => {
       callback(message, data);
-    });
+    };
+
+    window.electron.ipcRenderer.on("message", listener);
+
+    return () => {
+      window.electron.ipcRenderer.removeListener("message", listener);
+    };
   }
 }

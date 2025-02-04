@@ -8,13 +8,17 @@ const Clients = () => {
 
   useEffect(() => {
     console.log("useEffect adapter.onMessage", adapter);
-    adapter.onMessage((message, data) => {
+    const cleaner = adapter.onMessage((message, data) => {
       console.log("onMessage");
       setMessages((prevMessages) => [
         ...prevMessages,
         `${message}: ${JSON.stringify(data)}`,
       ]);
     });
+
+    return () => {
+      cleaner();
+    };
   }, [adapter]);
 
   const sendMessage = async () => {
