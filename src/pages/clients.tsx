@@ -38,9 +38,8 @@ const Clients = () => {
     const accessToken = await adapter.sendMessage("getAccessToken");
     console.log(accessToken);
 
-    // Test API
-    const url = '/api/v3/account/info'
-    const response = await fetch(url,{
+    const url = ''; // Replace with real API URL
+    const response = await fetch(url, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
