@@ -34,10 +34,27 @@ const Clients = () => {
     }
   };
 
+  const getAccessToken = async () => {
+    const accessToken = await adapter.sendMessage("getAccessToken");
+    console.log(accessToken);
+
+    const url = ''; // Replace with real API URL
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })
+    const data = await response.json();
+    console.log(data);
+  };
+
   return (
     <div style={{ padding: "20px" }}>
       <h1>Clients</h1>
       <h2>Adapter: {adapter && adapter?.constructor?.name}</h2>
+
+      <button onClick={getAccessToken}>Get Access Token</button>
+
       <button onClick={sendMessage} disabled={isLoading}>
         {isLoading ? "Sending..." : "Send Message"}
       </button>
