@@ -20,12 +20,18 @@ export class NormalWebsiteAdapter
   /**
    * Registers a callback to handle incoming messages. Placeholder implementation.
    * @param callback - A function to handle the received message and optional data.
+   * @returns A function to remove the event listener.
    */
 
   // @ts-ignore
-  onMessage(callback: (message: string, data?: unknown) => void): void {
+  onMessage(callback: (message: string, data?: unknown) => void): () => void  {
     console.warn(
       "NormalWebsiteAdapter.onMessage() called. No implementation provided."
     );
+
+    // Return cleanup function to remove listener when needed
+    return () => {
+      console.log("NormalWebsiteAdapter onMessage listener removed.");
+    };
   }
 }
