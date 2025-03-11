@@ -17,7 +17,7 @@ const Clients = () => {
     });
 
     return () => {
-      cleaner();
+      cleaner?.();
     };
   }, [adapter]);
 
