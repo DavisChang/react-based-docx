@@ -28,19 +28,24 @@ export class IframeAdapter implements CommunicationAdapter {
     });
   }
 
-  onMessage(callback: (message: string, data?: any) => void): void {
+  onMessage(callback: (message: string, data?: any) => void): () => void {
     console.log("IframeAdapter onMessage");
-    window.addEventListener("message", (event) => {
+  
+    const listener = (event: MessageEvent) => {
       if (event.origin !== "EXPECTED_ORIGIN") return; // Add origin check
-      if (
-        !event.data ||
-        !event.data.type ||
-        event.data.type !== "EXPECTED_TYPE"
-      )
+      if (!event.data || !event.data.type || event.data.type !== "EXPECTED_TYPE")
         return; // Validate message structure
-
+  
       const { message, data } = event.data;
       callback(message, data);
-    });
+    };
+  
+    window.addEventListener("message", listener);
+  
+    // Return a function to remove the event listener
+    return () => {
+      window.removeEventListener("message", listener);
+      console.log("IframeAdapter onMessage listener removed");
+    };
   }
 }
