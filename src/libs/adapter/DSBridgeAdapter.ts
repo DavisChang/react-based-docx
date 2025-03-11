@@ -1,4 +1,5 @@
 import { CommunicationAdapter } from "./CommunicationAdapter";
+import dsBridge from "dsbridge";
 
 /**
  * Adapter for integrating with DSBridge-Android for two-way communication.
@@ -11,12 +12,16 @@ export class DSBridgeAdapter implements CommunicationAdapter {
    * @param data - Optional data to pass to the client method.
    * @returns A promise resolving to the response from the client.
    */
+
+  private registeredHandlers: { [key: string]: (data: string) => void } = {};
+
   async sendMessage<T, R>(message: string, data?: T): Promise<R> {
     return new Promise((resolve, reject) => {
-      if (window.dsBridge && typeof window.dsBridge.call === "function") {
+      if (dsBridge && typeof dsBridge.call === "function") {
         try {
-          const response = window.dsBridge.call(message, JSON.stringify(data));
-          resolve(response as R);
+          dsBridge.call(message, JSON.stringify(data), (response: R) => {
+            resolve(response);
+          });
         } catch (error) {
           reject(error);
         }
@@ -35,33 +40,35 @@ export class DSBridgeAdapter implements CommunicationAdapter {
    * @returns A cleanup function to remove the listener.
    */
   onMessage(callback: (message: string, data?: any) => void): () => void {
-    if (window.dsBridge && typeof window.dsBridge.register === "function") {
+    if (dsBridge && typeof dsBridge.register === "function") {
       const handler = (data: string) => {
         try {
           const parsedData = JSON.parse(data);
           callback(parsedData.message, parsedData.data);
         } catch (error) {
-          console.error("Failed to parse message data from DSBridge:", error);
+          console.error(
+            "[DSBridgeAdapter] Failed to parse message data:",
+            error
+          );
         }
       };
 
-      window.dsBridge.register("onMessage", handler);
+      dsBridge.register("onMessage", handler);
+      this.registeredHandlers["onMessage"] = handler;
 
-      // Return a cleanup function to unregister the handler
+      // Return a function to override and unregister
       return () => {
-        if (
-          window.dsBridge &&
-          typeof window.dsBridge.unregister === "function"
-        ) {
-          window.dsBridge.unregister("onMessage");
+        if (this.registeredHandlers["onMessage"]) {
+          dsBridge.register("onMessage", function () {
+            console.log("[DSBridgeAdapter] onMessage unregistered.");
+          });
+          delete this.registeredHandlers["onMessage"];
         }
       };
     } else {
       console.warn(
-        "DSBridge is not available or 'register' method is missing."
+        "[DSBridgeAdapter] dsBridge is not available or 'register' method is missing."
       );
-
-      // Return a no-op cleanup function
       return () => {};
     }
   }

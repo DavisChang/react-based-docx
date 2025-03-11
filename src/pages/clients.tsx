@@ -6,6 +6,8 @@ const Clients = () => {
   const [isLoading, setIsLoading] = useState(false); // State for
   const adapter = CommunicationFactory.createAdapter();
 
+  const dataSource = { id: 42 };
+
   useEffect(() => {
     console.log("useEffect adapter.onMessage", adapter);
     const cleaner = adapter.onMessage((message, data) => {
@@ -25,7 +27,7 @@ const Clients = () => {
     console.log("sendMessage:", adapter);
     setIsLoading(true); // Set loading to true
     try {
-      const response = await adapter.sendMessage("getData", { id: 42 });
+      const response = await adapter.sendMessage("getData", dataSource);
       console.log("Response from client:", response);
     } catch (error) {
       console.error("Error sending message:", error);
@@ -38,6 +40,7 @@ const Clients = () => {
     <div style={{ padding: "20px" }}>
       <h1>Clients</h1>
       <h2>Adapter: {adapter && adapter?.constructor?.name}</h2>
+      <p>Data: {JSON.stringify(dataSource)}</p>
       <button onClick={sendMessage} disabled={isLoading}>
         {isLoading ? "Sending..." : "Send Message"}
       </button>
@@ -45,7 +48,9 @@ const Clients = () => {
       <h4>Receive messages:</h4>
       <ul>
         {messages.map((msg, index) => (
-          <li key={index}>{msg}</li>
+          <li key={index}>
+            <p>{msg}</p>
+          </li>
         ))}
       </ul>
     </div>
