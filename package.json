@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@excalidraw/excalidraw": "^0.17.6",
+    "d3": "^7.9.0",
     "docx": "^9.1.0",
     "docx-preview": "^0.3.3",
     "dsbridge": "^3.1.4",
@@ -33,6 +34,7 @@
   "devDependencies": {
     "@electron-toolkit/preload": "^3.0.1",
     "@eslint/js": "^9.17.0",
+    "@types/d3": "^7.4.3",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react-swc": "^3.5.0",

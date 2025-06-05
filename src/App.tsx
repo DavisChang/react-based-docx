@@ -4,6 +4,7 @@ import React, { Suspense } from "react";
 const Home = React.lazy(() => import("./pages/home"));
 const Clients = React.lazy(() => import("./pages/clients"));
 const Whiteboard = React.lazy(() => import("./pages/whiteboard/index"));
+const SpinWheel = React.lazy(() => import("./pages/SpinWheel/index"));
 
 const App = () => (
   <Router>
@@ -17,6 +18,9 @@ const App = () => (
         </li>
         <li>
           <Link to="/whiteboard">Custom Excalidraw</Link>
+        </li>
+        <li>
+          <Link to="/spinwheel">Spin Wheel</Link>
         </li>
       </ul>
     </nav>
@@ -44,6 +48,7 @@ const App = () => (
             }
           />
           <Route path="/whiteboard" element={<Whiteboard />} />
+          <Route path="/spinwheel" element={<SpinWheel />} />
         </Routes>
       </Suspense>
     </>
