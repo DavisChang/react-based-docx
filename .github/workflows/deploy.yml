@@ -9,6 +9,8 @@ on:
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       # Checkout the repository
@@ -28,6 +30,10 @@ jobs:
       # Build the project
       - name: Build project
         run: npm run build
+
+      # Add SPA fallback (404.html) copying index.html
+      - name: Add SPA 404 fallback
+        run: cp dist/index.html dist/404.html
 
       # Deploy to github pages
       - name: Deploy to github pages

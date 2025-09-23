@@ -8,7 +8,7 @@ const SpinWheel = React.lazy(() => import("./pages/SpinWheel/index"));
 const IframeGameTest = React.lazy(() => import("./pages/iframeGameTest/index"));
 
 const App = () => (
-  <Router>
+  <Router basename={import.meta.env.BASE_URL}>
     <nav>
       <ul>
         <li>
