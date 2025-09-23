@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Iframe Child (Test Harness)</title>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        background: #0b1220;
+        color: #e6edf3;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      }
+      .wrap {
+        position: relative;
+        height: 100%;
+        display: grid;
+        grid-template-rows: auto 1fr;
+      }
+      header {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        padding: 12px;
+        background: #0f172a;
+        border-bottom: 1px solid rgba(255,255,255,.07);
+      }
+      header .status {
+        font-weight: 700;
+      }
+      main {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        padding: 16px;
+      }
+      .card {
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
+        padding: 12px;
+      }
+      .row { display: flex; gap: 8px; align-items: center; margin: 6px 0; }
+      input[type="text"], input[type="number"], select {
+        background: #0f172a;
+        border: 1px solid rgba(255,255,255,.12);
+        color: #e6edf3;
+        border-radius: 8px;
+        padding: 8px 10px;
+      }
+      button {
+        background: #2563eb;
+        border: 1px solid rgba(255,255,255,.12);
+        color: white;
+        border-radius: 8px;
+        padding: 8px 10px;
+        cursor: pointer;
+      }
+      button.secondary { background: #334155; }
+      .log {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 12px;
+        line-height: 1.5;
+        max-height: 320px;
+        overflow: auto;
+        background: rgba(0,0,0,.35);
+        padding: 8px;
+        border-radius: 8px;
+      }
+      .muted { opacity: .8; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div class="status" id="status">NOT READY</div>
+        <div class="muted">Parent origin:</div>
+        <div id="origin" class="muted">(unknown)</div>
+      </header>
+      <main>
+        <section class="card">
+          <h3 style="margin: 0 0 8px 0;">Controls</h3>
+          <div class="row">
+            <label style="width: 84px;">User ID</label>
+            <input id="uid" type="text" value="p1" />
+            <label style="width: 60px; text-align: right;">Name</label>
+            <input id="name" type="text" value="Player 1" />
+          </div>
+          <div class="row">
+            <label style="width: 84px;">Delta</label>
+            <input id="delta" type="number" value="5" />
+            <button id="btnDelta">Send Delta</button>
+          </div>
+          <div class="row">
+            <label style="width: 84px;">Score</label>
+            <input id="score" type="number" value="0" />
+            <button id="btnAbs">Send Absolute</button>
+          </div>
+          <div class="row">
+            <label style="width: 84px;">Order</label>
+            <select id="order">
+              <option value="desc">desc</option>
+              <option value="asc">asc</option>
+            </select>
+            <button id="btnOrder" class="secondary">Report Order</button>
+          </div>
+          <div class="row">
+            <button id="btnEnd" style="background:#ef4444">Report Game Over</button>
+          </div>
+        </section>
+        <section class="card">
+          <h3 style="margin: 0 0 8px 0;">Event Log</h3>
+          <div id="log" class="log"><div class="muted">No events</div></div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      // ===== Construct 3 Child Script =====
+
+      // 只回傳給正確的父頁（建議你已知父頁固定網域就寫死，而不是用 referrer）
+      const PARENT_ORIGIN = (() => {
+        try { return new URL(document.referrer).origin; } catch { return "*"; }
+      })();
+
+      function postToParent(msg) {
+        window.parent?.postMessage(msg, PARENT_ORIGIN);
+        appendLog(`[post] ${JSON.stringify(msg)}`);
+      }
+
+      // 握手：父頁會送 HELLO；回 READY
+      window.addEventListener("message", (e) => {
+        if (PARENT_ORIGIN !== "*" && e.origin !== PARENT_ORIGIN) return;
+        const d = e.data;
+        if (!d || typeof d !== "object") return;
+
+        appendLog(`[recv] ${JSON.stringify(d)} from ${e.origin}`);
+
+        if (d.type === "HELLO") {
+          postToParent({ type: "READY" });
+          setReady(true);
+        } else if (d.type === "REQUEST_END") {
+          // 父頁要求結束：這裡走自己的結束邏輯，然後送 GAME_OVER
+          const final = currentScore;
+          reportEnd(final);
+        }
+      });
+
+      /** ===== 你在 C3 任意事件中呼叫以下方法即可 ===== **/
+
+      let currentScore = 0;
+
+      // 累加回報（delta 形式），例如吃到道具 +5；父頁會自行累積
+      function reportScoreDelta(delta, userId = "p1", name = "Player 1") {
+        delta = Number(delta) || 0;
+        currentScore += delta;
+        postToParent({
+          type: "SCORE_UPDATE",
+          userId,
+          name,
+          delta,
+          ts: Date.now(),
+        });
+      }
+
+      // 直接回報「當前總分」（absolute 形式），父頁會覆蓋為該分數
+      function reportScoreAbsolute(score, userId = "p1", name = "Player 1") {
+        score = Number(score) || 0;
+        currentScore = score;
+        postToParent({
+          type: "SCORE_UPDATE",
+          userId,
+          name,
+          score,
+          ts: Date.now(),
+        });
+      }
+
+      // 變更排序（asc/desc），告知父頁同步顯示
+      function reportOrder(order /* "asc" | "desc" */) {
+        const ord = order === "asc" ? "asc" : "desc";
+        postToParent({ type: "ORDER_UPDATE", order: ord, ts: Date.now() });
+      }
+
+      // 遊戲結束，回報最終分數
+      function reportEnd(finalScore, userId = "p1", name = "Player 1") {
+        postToParent({
+          type: "GAME_OVER",
+          userId,
+          name,
+          final: Number(finalScore) || 0,
+          ts: Date.now(),
+        });
+      }
+
+      // ===== UI Wiring =====
+      const $ = (sel) => document.querySelector(sel);
+      const uid = $("#uid");
+      const nameInput = $("#name");
+      const delta = $("#delta");
+      const score = $("#score");
+      const order = $("#order");
+      const statusEl = $("#status");
+      const originEl = $("#origin");
+      originEl.textContent = PARENT_ORIGIN;
+
+      $("#btnDelta").addEventListener("click", () => {
+        reportScoreDelta(Number(delta.value), uid.value || "p1", nameInput.value || "Player 1");
+      });
+      $("#btnAbs").addEventListener("click", () => {
+        reportScoreAbsolute(Number(score.value), uid.value || "p1", nameInput.value || "Player 1");
+      });
+      $("#btnOrder").addEventListener("click", () => {
+        reportOrder(order.value);
+      });
+      $("#btnEnd").addEventListener("click", () => {
+        reportEnd(currentScore, uid.value || "p1", nameInput.value || "Player 1");
+      });
+
+      function setReady(isReady) {
+        statusEl.textContent = isReady ? "READY" : "NOT READY";
+        statusEl.style.color = isReady ? "#22c55e" : "#eab308";
+      }
+
+      function appendLog(line) {
+        const logEl = document.getElementById("log");
+        const atTop = logEl.scrollTop === 0;
+        const el = document.createElement("div");
+        el.textContent = `${new Date().toLocaleTimeString()} - ${line}`;
+        logEl.prepend(el);
+        if (logEl.childElementCount > 200) logEl.removeChild(logEl.lastChild);
+        if (atTop) logEl.scrollTop = 0;
+      }
+    </script>
+  </body>
+  </html>
+
+
