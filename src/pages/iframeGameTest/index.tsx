@@ -12,8 +12,8 @@ const OUTER_PARENT_ORIGIN: string = (() => {
 type FromChild =
   | { type: "READY" }
   | { type: "SCORE_UPDATE"; userId: string; name?: string; delta?: number; score?: number; ts: number }
-  | { type: "ORDER_UPDATE"; order: "asc" | "desc"; ts: number }
-  | { type: "GAME_OVER"; userId: string; name?: string; final: number; ts: number };
+  | { type: "GAME_OVER"; userId: string; name?: string; final: number; ts: number }
+  | { type: "FORCE_GAME_OVER"; userId: string; name?: string; final: number; ts: number };
 
 /** Parent → Child 訊息型別（必要最少） */
 type ToChild =
@@ -103,13 +103,6 @@ const IframeGameTest = (): JSX.Element => {
           setEventLog((l) => [{ ts: Date.now(), text: "Child READY", raw: m }, ...l].slice(0, 50));
           break;
 
-        case "ORDER_UPDATE":
-          setEventLog((l) => [
-            { ts: Date.now(), text: `Order update → ${m.order}` , raw: m},
-            ...l,
-          ].slice(0, 50));
-          break;
-
         case "SCORE_UPDATE": {
           const { userId, name = userId, delta, score } = m;
           setBoard((prev) => {
@@ -131,6 +124,16 @@ const IframeGameTest = (): JSX.Element => {
           setBoard((prev) => ({ ...prev, [userId]: { userId, name, score: Number(final) || 0 } }));
           setEventLog((l) => [
             { ts: Date.now(), text: `Game over → ${userId} ${name} ${final}`, raw: m },
+            ...l,
+          ].slice(0, 50));
+          break;
+        }
+
+        case "FORCE_GAME_OVER": {
+          const { userId, name = userId, final } = m;
+          setBoard((prev) => ({ ...prev, [userId]: { userId, name, score: Number(final) || 0 } }));
+          setEventLog((l) => [
+            { ts: Date.now(), text: `Force game over → ${userId} ${name} ${final}`, raw: m },
             ...l,
           ].slice(0, 50));
           break;
@@ -226,8 +229,8 @@ const IframeGameTest = (): JSX.Element => {
           <div style={{ fontSize: 13, lineHeight: 1.6 }}>
             <div>1) 父頁載入本頁並嵌入子頁（iframe-child.html）。</div>
             <div>2) 父頁在 iframe onload 後送出 HELLO；子頁收到後回 READY。</div>
-            <div>3) 遊戲過程中，子頁可送 SCORE_UPDATE（delta 或 score）、ORDER_UPDATE。</div>
-            <div>4) 結束時，子頁送 GAME_OVER；或父頁送 REQUEST_END 要求子頁結束。</div>
+            <div>3) 遊戲過程中，子頁可送 SCORE_UPDATE（delta 或 score）。</div>
+            <div>4) 遊戲正常結束時送 GAME_OVER；父頁送 REQUEST_END 時，子頁應回 FORCE_GAME_OVER。</div>
             <div>5) 為安全，雙方都使用固定 ORIGIN 做 postMessage 過濾。</div>
             <div>6) 此頁也會將子頁事件轉傳給更外層父頁（若本頁被 iframe 嵌入）。</div>
           </div>
@@ -238,13 +241,13 @@ const IframeGameTest = (): JSX.Element => {
 Child → Parent:
   { type: "READY" }
   { type: "SCORE_UPDATE", userId, name?, delta?, score?, ts }
-  { type: "ORDER_UPDATE", order: "asc" | "desc", ts }
-  { type: "GAME_OVER", userId, name?, final, ts }`}</pre>
+  { type: "GAME_OVER", userId, name?, final, ts }
+  { type: "FORCE_GAME_OVER", userId, name?, final, ts }`}</pre>
           <div style={{ fontWeight: 600, marginTop: 8 }}>Child 端（iframe-child.html）重點</div>
           <pre className="igt-pre">{`window.addEventListener('message', (e) => {
   // 驗證 e.origin 是否為父頁
   if (e.data?.type === 'HELLO') postToParent({ type: 'READY' });
-  if (e.data?.type === 'REQUEST_END') reportEnd(currentScore);
+  if (e.data?.type === 'REQUEST_END') reportForceEnd(currentScore);
 });
 function reportScoreDelta(delta, userId = 'p1', name = 'Player 1') {
   postToParent({ type: 'SCORE_UPDATE', userId, name, delta, ts: Date.now() });
@@ -252,11 +255,11 @@ function reportScoreDelta(delta, userId = 'p1', name = 'Player 1') {
 function reportScoreAbsolute(score, userId = 'p1', name = 'Player 1') {
   postToParent({ type: 'SCORE_UPDATE', userId, name, score, ts: Date.now() });
 }
-function reportOrder(order /* 'asc' | 'desc' */) {
-  postToParent({ type: 'ORDER_UPDATE', order, ts: Date.now() });
-}
 function reportEnd(finalScore, userId = 'p1', name = 'Player 1') {
   postToParent({ type: 'GAME_OVER', userId, name, final: finalScore, ts: Date.now() });
+}
+function reportForceEnd(finalScore, userId = 'p1', name = 'Player 1') {
+  postToParent({ type: 'FORCE_GAME_OVER', userId, name, final: finalScore, ts: Date.now() });
 }`}</pre>
         </div>
       </div>
