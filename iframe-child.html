@@ -99,15 +99,8 @@
             <button id="btnAbs">Send Absolute</button>
           </div>
           <div class="row">
-            <label style="width: 84px;">Order</label>
-            <select id="order">
-              <option value="desc">desc</option>
-              <option value="asc">asc</option>
-            </select>
-            <button id="btnOrder" class="secondary">Report Order</button>
-          </div>
-          <div class="row">
-            <button id="btnEnd" style="background:#ef4444">Report Game Over</button>
+            <button id="btnEnd" style="background:#22c55e">Report Game Over</button>
+            <button id="btnForceEnd" class="secondary">Force Game Over</button>
           </div>
         </section>
         <section class="card">
@@ -142,9 +135,9 @@
           postToParent({ type: "READY" });
           setReady(true);
         } else if (d.type === "REQUEST_END") {
-          // 父頁要求結束：這裡走自己的結束邏輯，然後送 GAME_OVER
+          // 父頁要求結束：這裡走自己的結束邏輯，改為回 FORCE_GAME_OVER
           const final = currentScore;
-          reportEnd(final);
+          reportForceEnd(final);
         }
       });
 
@@ -178,16 +171,21 @@
         });
       }
 
-      // 變更排序（asc/desc），告知父頁同步顯示
-      function reportOrder(order /* "asc" | "desc" */) {
-        const ord = order === "asc" ? "asc" : "desc";
-        postToParent({ type: "ORDER_UPDATE", order: ord, ts: Date.now() });
-      }
-
-      // 遊戲結束，回報最終分數
+      // 遊戲正常結束，回報最終分數
       function reportEnd(finalScore, userId = "p1", name = "Player 1") {
         postToParent({
           type: "GAME_OVER",
+          userId,
+          name,
+          final: Number(finalScore) || 0,
+          ts: Date.now(),
+        });
+      }
+
+      // 老師強制結束，回報 FORCE_GAME_OVER
+      function reportForceEnd(finalScore, userId = "p1", name = "Player 1") {
+        postToParent({
+          type: "FORCE_GAME_OVER",
           userId,
           name,
           final: Number(finalScore) || 0,
@@ -201,7 +199,6 @@
       const nameInput = $("#name");
       const delta = $("#delta");
       const score = $("#score");
-      const order = $("#order");
       const statusEl = $("#status");
       const originEl = $("#origin");
       originEl.textContent = PARENT_ORIGIN;
@@ -212,11 +209,11 @@
       $("#btnAbs").addEventListener("click", () => {
         reportScoreAbsolute(Number(score.value), uid.value || "p1", nameInput.value || "Player 1");
       });
-      $("#btnOrder").addEventListener("click", () => {
-        reportOrder(order.value);
-      });
       $("#btnEnd").addEventListener("click", () => {
         reportEnd(currentScore, uid.value || "p1", nameInput.value || "Player 1");
+      });
+      $("#btnForceEnd").addEventListener("click", () => {
+        reportForceEnd(currentScore, uid.value || "p1", nameInput.value || "Player 1");
       });
 
       function setReady(isReady) {
